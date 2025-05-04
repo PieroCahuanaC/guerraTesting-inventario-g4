@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import os
 
+from views.agregar_producto import crear_frame_agregar
 # Ventaja principal
 root = tk.Tk()
 root.title("Menú Principal - Muebles Moderno")
@@ -34,7 +35,8 @@ botones_frame = tk.Frame(frame_menu, bg="white")
 botones_frame.pack(pady=15)
 
 # Se crean frames para cada vista
-frame_agregar = tk.Frame(root, bg="white")
+frame_agregar = crear_frame_agregar(root)
+
 frame_mostrar = tk.Frame(root, bg="white")
 frame_reporte = tk.Frame(root, bg="white")
 
@@ -62,7 +64,7 @@ def mostrar_frame_reporte():
 
 # Botón: Agregar nuevo producto
 btn_agregar = tk.Button(botones_frame, text="Agregar nuevo producto", width=25, height=3,
-                        font=("Sans-serif", 20, "bold"), bg="#4CAF50", fg="white")
+                        font=("Sans-serif", 20, "bold"), bg="#4CAF50", fg="white", command=mostrar_frame_agregar)
 btn_agregar.grid(row=0, column=0, padx=(0, 10))
 
 # Botón: Mostrar y Editar inventario
