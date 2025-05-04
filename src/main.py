@@ -2,9 +2,10 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import os
 
-from views.agregar_producto import crear_frame_agregar
-from views.mostrar_inventario import crear_frame_mostrar
-from views.descargar_reporte import crear_frame_reporte
+from vistas.agregar_producto import crear_frame_agregar
+from vistas.mostrar_inventario import crear_frame_mostrar
+from vistas.descargar_reporte import crear_frame_reporte
+
 
 
 # Ventaja principal
