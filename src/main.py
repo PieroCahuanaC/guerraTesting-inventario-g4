@@ -3,6 +3,10 @@ from PIL import Image, ImageTk
 import os
 
 from views.agregar_producto import crear_frame_agregar
+from views.mostrar_inventario import crear_frame_mostrar
+from views.descargar_reporte import crear_frame_reporte
+
+
 # Ventaja principal
 root = tk.Tk()
 root.title("Menú Principal - Muebles Moderno")
@@ -29,7 +33,7 @@ else:
 
 
 
-# Botones
+# Botones--------------------------------------
 # Frame para los botones
 botones_frame = tk.Frame(frame_menu, bg="white")
 botones_frame.pack(pady=15)
@@ -37,8 +41,9 @@ botones_frame.pack(pady=15)
 # Se crean frames para cada vista
 frame_agregar = crear_frame_agregar(root)
 
-frame_mostrar = tk.Frame(root, bg="white")
-frame_reporte = tk.Frame(root, bg="white")
+frame_mostrar = crear_frame_mostrar(root)
+frame_reporte = crear_frame_reporte(root)
+
 
 # Se crean funciones para cambiar de vista
 def mostrar_frame_agregar():
@@ -62,21 +67,20 @@ def mostrar_frame_reporte():
 
 
 
-# Botón: Agregar nuevo producto
+# Boton: agregar nuevo producto
 btn_agregar = tk.Button(botones_frame, text="Agregar nuevo producto", width=25, height=3,
                         font=("Sans-serif", 20, "bold"), bg="#4CAF50", fg="white", command=mostrar_frame_agregar)
 btn_agregar.grid(row=0, column=0, padx=(0, 10))
 
-# Botón: Mostrar y Editar inventario
+# Boton: mostrar los productos
 btn_mostrar = tk.Button(botones_frame, text="Mostrar y Editar inventario", width=25, height=3,
-                        font=("Sans-serif", 20, "bold"), bg="#2196F3", fg="white")
+                        font=("Sans-serif", 20, "bold"), bg="#2196F3", fg="white", command=mostrar_frame_mostrar)
 btn_mostrar.grid(row=0, column=1, padx=(10, 0))
 
-# Botón: Descargar reporte de inventario
+# Boton: descargar reporte
 btn_reporte = tk.Button(frame_menu, text="Descargar reporte de inventario", width=25, height=3,
-                        font=("Sans-serif", 20, "bold"), bg="#607D8B", fg="white")
+                        font=("Sans-serif", 20, "bold"), bg="#607D8B", fg="white", command=mostrar_frame_reporte)
 btn_reporte.pack(pady=10)
-
 
 
 # Ejecutar ventana
