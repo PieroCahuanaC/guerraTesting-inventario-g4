@@ -1,0 +1,11 @@
+id_producto,nombre,cantidad,precio,unidades,categorias
+1,Sofá modular,10,799.99,{'nombre_unidad': 'unidad'},{'nombre_categoria': 'Sala'}
+2,Mesa comedor 6p,5,549.5,{'nombre_unidad': 'juego'},{'nombre_categoria': 'Comedor'}
+3,Silla giratoria,20,129.99,{'nombre_unidad': 'unidad'},{'nombre_categoria': 'Oficina'}
+4,Cama Queen,7,699.0,{'nombre_unidad': 'unidad'},{'nombre_categoria': 'Dormitorio'}
+5,Juego de terraza,3,899.9,{'nombre_unidad': 'juego'},{'nombre_categoria': 'Exteriores'}
+6,Lámpara de pie,15,85.75,{'nombre_unidad': 'unidad'},{'nombre_categoria': 'Sala'}
+7,Escritorio ejecutivo,8,399.0,{'nombre_unidad': 'unidad'},{'nombre_categoria': 'Oficina'}
+8,Velador doble,10,120.0,{'nombre_unidad': 'par'},{'nombre_categoria': 'Dormitorio'}
+9,Silla plegable,25,45.99,{'nombre_unidad': 'unidad'},{'nombre_categoria': 'Exteriores'}
+10,Repisa flotante,30,29.95,{'nombre_unidad': 'pieza'},{'nombre_categoria': 'Sala'}
