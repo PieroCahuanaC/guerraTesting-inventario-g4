@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 from services.supabase_service import supabase
 from vistas.editar_producto import abrir_ventana_edicion
 
