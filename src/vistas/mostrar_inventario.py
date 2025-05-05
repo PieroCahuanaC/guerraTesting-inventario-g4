@@ -3,6 +3,8 @@ from tkinter import ttk, messagebox
 from services.supabase_service import supabase
 from vistas.editar_producto import abrir_ventana_edicion
 from vistas.eliminar_producto import eliminar_producto  
+import os
+from PIL import Image, ImageTk
 
 def crear_frame_mostrar(root):
     """
@@ -32,6 +34,14 @@ def crear_frame_mostrar(root):
         bg="white"
     ).pack(pady=10)
 
+    # Frame para barra de búsqueda
+    busqueda_frame = tk.Frame(frame, bg="white")
+    busqueda_frame.pack(pady=(0, 10))
+
+    # Campo de texto para buscar productos por nombre
+    entry_busqueda = tk.Entry(busqueda_frame, font=("Sans-serif", 14), width=40)
+    entry_busqueda.pack(side="left", padx=(10, 5))
+    
     # Definición de columnas para el Treeview
     columns = ("ID", "Nombre", "Cantidad", "Precio", "Unidad", "Categoría")
     tree = ttk.Treeview(frame, columns=columns, show="headings", height=15)
@@ -85,6 +95,52 @@ def crear_frame_mostrar(root):
         for row in tree.get_children():
             tree.delete(row)
         cargar_datos()
+    
+    # Funcion para buscar productos
+    def buscar_producto(termino):
+        for row in tree.get_children():
+            tree.delete(row)
+        try:
+            termino_busqueda = termino.strip().lower()
+            response = supabase.from_("productos").select("""
+                id_producto,
+                nombre,
+                cantidad,
+                precio,
+                unidades(nombre_unidad),
+                categorias(nombre_categoria)
+            """).order("id_producto", desc=False).execute()
+
+            productos = response.data
+            for producto in productos:
+                if termino_busqueda in producto['nombre'].lower():
+                    tree.insert("", "end", values=(
+                        producto['id_producto'],
+                        producto['nombre'],
+                        producto['cantidad'],
+                        producto['precio'],
+                        producto['unidades']['nombre_unidad'],
+                        producto['categorias']['nombre_categoria']
+                    ))
+        except Exception as e:
+            print("Error al buscar productos:", str(e))
+
+    # Botón de búsqueda 
+    ruta_directorio = os.path.dirname(os.path.abspath(__file__))
+    ruta_lupa = os.path.join(ruta_directorio, '../../assets/lupa.png')
+    if os.path.exists(ruta_lupa):
+        lupa_image = Image.open(ruta_lupa).resize((30, 30), Image.LANCZOS)
+        lupa_photo = ImageTk.PhotoImage(lupa_image)
+
+        boton_buscar = tk.Button(
+            busqueda_frame,
+            image=lupa_photo,
+            bg="white",
+            command=lambda: buscar_producto(entry_busqueda.get()),
+            borderwidth=0
+        )
+        boton_buscar.image = lupa_photo
+        boton_buscar.pack(side="left", padx=10)
 
     def abrir_ventana_emergente(event):
         """
