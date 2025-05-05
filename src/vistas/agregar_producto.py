@@ -62,6 +62,13 @@ def crear_frame_agregar(root, recargar_tabla=None):
         unidad = unidad_var.get().strip()
         categoria = categoria_var.get().strip()
 
+        import re  # al inicio del archivo si no está importado
+
+        # Validar que el nombre contenga solo letras, números, espacios, guiones y comas
+        if not re.match(r"^[\w\sáéíóúÁÉÍÓÚñÑ.,-]{3,50}$", nombre):
+            messagebox.showerror("Error", "El nombre solo debe contener letras, números, espacios, comas o guiones.\nDebe tener entre 3 y 50 caracteres.")
+            return
+
         # Valida que todos los campos estén completos
         if not nombre or not cantidad or not precio or unidad == "Selecciona unidad" or categoria == "Selecciona categoría":
             messagebox.showerror("Error", "Por favor, complete todos los campos.")
@@ -88,6 +95,14 @@ def crear_frame_agregar(root, recargar_tabla=None):
                 raise Exception("Categoría no encontrada en la base de datos.")
             id_categoria = categoria_response.data[0]["id_categoria"]
 
+            # Verificar si ya existe un producto con el mismo nombre
+            nombre_normalizado = nombre.lower()
+            respuesta_existente = supabase.table("productos").select("nombre").execute()
+            for prod in respuesta_existente.data:
+                if prod["nombre"].lower() == nombre_normalizado:
+                    messagebox.showwarning("Duplicado", f"Ya existe un producto con el nombre '{prod['nombre']}' (sin distinguir mayúsculas).")
+                    return
+
             # Inserta producto en la tabla productos
             supabase.table("productos").insert({
                 "nombre": nombre,
@@ -107,8 +122,10 @@ def crear_frame_agregar(root, recargar_tabla=None):
             precio_var.set("")
             unidad_var.set("Selecciona unidad")
             categoria_var.set("Selecciona categoría")
-
-             # ACTUALIZA la tabla al instante
+        
+        
+            if recargar_tabla:
+                recargar_tabla()  # ACTUALIZA la tabla al instante
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el producto:\n{str(e)}")

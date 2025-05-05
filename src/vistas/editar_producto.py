@@ -100,6 +100,13 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
             # Validación básica
             if not nuevo_nombre:
                 raise ValueError("El nombre no puede estar vacío.")
+            # Validar que no exista otro producto con el mismo nombre
+            nombre_normalizado = nuevo_nombre.lower()
+            respuesta_existente = supabase.table("productos").select("id_producto", "nombre").execute()
+            for prod in respuesta_existente.data:
+                if prod["nombre"].lower() == nombre_normalizado and prod["id_producto"] != producto["id_producto"]:
+                    messagebox.showwarning("Duplicado", f"Ya existe otro producto con el nombre '{prod['nombre']}' (sin distinguir mayúsculas).")
+                    return
 
             # Buscar IDs de unidad y categoría seleccionadas
             id_unidad = next(u["id_unidad"] for u in unidades if u["nombre_unidad"] == nueva_unidad)
