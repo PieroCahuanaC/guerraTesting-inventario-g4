@@ -13,6 +13,10 @@ def crear_frame_mostrar(root):
     titulo = tk.Label(frame, text="Inventario de Productos", font=("Sans-serif", 32, "bold"), bg="white")
     titulo.pack(pady=40)
 
+    # Indicaciones de doble click
+    titulo = tk.Label(frame, text="Haz un doble click sobre un producto para editar", font=("Sans-serif", 12, "bold"), bg="white")
+    titulo.pack(pady=10)
+
     # Definición de columnas para la tabla que se mostrará
     columns = ("ID", "Nombre", "Cantidad", "Precio", "Unidad", "Categoría")
 

@@ -49,25 +49,38 @@ frame_reporte = crear_frame_reporte(root)
 
 
 # Se crean funciones para cambiar de vista
+# Funcion para mostrar el menu principal
+def mostrar_menu_principal():
+    frame_agregar.pack_forget()
+    frame_mostrar.pack_forget()
+    frame_reporte.pack_forget()
+    btn_volver_menu.place_forget()  # Oculta el botón
+    frame_menu.pack(fill="both", expand=True)
+
+
+# Funcion para mostrar el frame de agregar producto
 def mostrar_frame_agregar():
     frame_menu.pack_forget()
     frame_mostrar.pack_forget()
     frame_reporte.pack_forget()
     frame_agregar.pack(fill="both", expand=True)
+    btn_volver_menu.place(x=10, y=10) 
 
-
+# Funcion para mostrar el frame de mostrar inventario
 def mostrar_frame_mostrar():
     frame_menu.pack_forget()
     frame_agregar.pack_forget()
     frame_reporte.pack_forget()
     frame_mostrar.pack(fill="both", expand=True)
+    btn_volver_menu.place(x=10, y=10) 
 
+# Funcion para mostrar el frame de reporte
 def mostrar_frame_reporte():
     frame_menu.pack_forget()
     frame_agregar.pack_forget()
     frame_mostrar.pack_forget()
     frame_reporte.pack(fill="both", expand=True)
-
+    btn_volver_menu.place(x=10, y=10) 
 
 
 # Boton: agregar nuevo producto
@@ -85,6 +98,10 @@ btn_reporte = tk.Button(frame_menu, text="Descargar reporte de inventario", widt
                         font=("Sans-serif", 20, "bold"), bg="#607D8B", fg="white", command=mostrar_frame_reporte)
 btn_reporte.pack(pady=10)
 
+# Botón para volver al menú principal 
+btn_volver_menu = tk.Button(root, text="⬅ Volver al menú principal",
+                            font=("Sans-serif", 14, "bold"), bg="white", borderwidth=0,
+                            command=mostrar_menu_principal)
 
 # Ejecutar ventana
 root.mainloop()
