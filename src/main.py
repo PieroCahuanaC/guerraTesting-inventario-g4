@@ -42,7 +42,9 @@ botones_frame.pack(pady=15)
 # Se crean frames para cada vista
 frame_agregar = crear_frame_agregar(root)
 
-frame_mostrar = crear_frame_mostrar(root)
+frame_mostrar, tabla_productos, recargar_tabla = crear_frame_mostrar(root)
+
+
 frame_reporte = crear_frame_reporte(root)
 
 

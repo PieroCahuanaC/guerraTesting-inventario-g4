@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from services.supabase_service import supabase
 
+from vistas.editar_producto import abrir_ventana_edicion
+
 # Función principal que construye y retorna el frame para mostrar el inventario
 def crear_frame_mostrar(root):
     # Crea frame con fondo blanco
@@ -30,6 +32,24 @@ def crear_frame_mostrar(root):
     tree.configure(yscrollcommand=scrollbar.set)
     scrollbar.pack(side="right", fill="y")
 
+    # Función para recargar la tabla
+    def recargar_tabla():
+        for row in tree.get_children():
+            tree.delete(row)
+        cargar_datos()
+
+    # Evento doble clic para editar producto
+    def abrir_ventana_emergente(event):
+        item_id = tree.focus()
+        if not item_id:
+            return
+        valores = tree.item(item_id, "values")
+        if valores:
+            id_producto = int(valores[0])
+            abrir_ventana_edicion(id_producto, frame_padre=frame, recargar_tabla=recargar_tabla)
+
+    tree.bind("<Double-1>", abrir_ventana_emergente)
+
     # Función para cargar los productos desde Supabase y mostrarlos en la tabla
     def cargar_datos():
         try:
@@ -41,7 +61,7 @@ def crear_frame_mostrar(root):
                 precio,
                 unidades(nombre_unidad),
                 categorias(nombre_categoria)
-            """).execute()
+            """).order("id_producto", desc=False).execute()
 
             productos = response.data  # Lista de productos obtenidos
 
@@ -63,4 +83,4 @@ def crear_frame_mostrar(root):
     cargar_datos()
 
     # Devuelve el frame creado para ser usado en la interfaz principal
-    return frame
+    return frame, tree, cargar_datos
