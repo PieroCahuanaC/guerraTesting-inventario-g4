@@ -34,6 +34,7 @@ def crear_frame_reporte(root):
             ).execute()
 
             productos = response.data
+            productos = sorted(productos, key=lambda p: p["id_producto"])  # Ordenar por ID
 
             # Procesar datos en un formato plano para Excel
             datos_limpios = []
@@ -74,6 +75,7 @@ def crear_frame_reporte(root):
             ).execute()
 
             productos = response.data
+            productos = sorted(productos, key=lambda p: p["id_producto"])  # Ordenar por ID
 
             # Cabecera + contenido plano para tabla PDF
             datos_limpios = [
