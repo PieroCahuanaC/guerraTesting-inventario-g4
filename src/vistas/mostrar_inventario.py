@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from services.supabase_service import supabase
-
 from vistas.editar_producto import abrir_ventana_edicion
 
 # Función principal que construye y retorna el frame para mostrar el inventario
@@ -10,12 +9,10 @@ def crear_frame_mostrar(root):
     frame = tk.Frame(root, bg="white")
 
     # Título del frame
-    titulo = tk.Label(frame, text="Inventario de Productos", font=("Sans-serif", 32, "bold"), bg="white")
-    titulo.pack(pady=40)
+    tk.Label(frame, text="Inventario de Productos", font=("Sans-serif", 32, "bold"), bg="white").pack(pady=40)
 
     # Indicaciones de doble click
-    titulo = tk.Label(frame, text="Haz un doble click sobre un producto para editar", font=("Sans-serif", 12, "bold"), bg="white")
-    titulo.pack(pady=10)
+    tk.Label(frame, text="Haz un doble click sobre un producto para editar", font=("Sans-serif", 12, "bold"), bg="white").pack(pady=10)
 
     # Definición de columnas para la tabla que se mostrará
     columns = ("ID", "Nombre", "Cantidad", "Precio", "Unidad", "Categoría")
@@ -36,7 +33,33 @@ def crear_frame_mostrar(root):
     tree.configure(yscrollcommand=scrollbar.set)
     scrollbar.pack(side="right", fill="y")
 
-    # Función para recargar la tabla
+    # Función para cargar los productos desde Supabase y mostrarlos en la tabla
+    def cargar_datos():
+        try:
+            response = supabase.from_("productos").select("""
+                id_producto,
+                nombre,
+                cantidad,
+                precio,
+                unidades(nombre_unidad),
+                categorias(nombre_categoria)
+            """).order("id_producto", desc=False).execute()
+
+            productos = response.data
+
+            for producto in productos:
+                tree.insert("", "end", values=(
+                    producto['id_producto'],
+                    producto['nombre'],
+                    producto['cantidad'],
+                    producto['precio'],
+                    producto['unidades']['nombre_unidad'],
+                    producto['categorias']['nombre_categoria']
+                ))
+        except Exception as e:
+            print("Error al cargar productos:", str(e))
+
+    # Función para recargar limpiando la tabla primero
     def recargar_tabla():
         for row in tree.get_children():
             tree.delete(row)
@@ -54,37 +77,4 @@ def crear_frame_mostrar(root):
 
     tree.bind("<Double-1>", abrir_ventana_emergente)
 
-    # Función para cargar los productos desde Supabase y mostrarlos en la tabla
-    def cargar_datos():
-        try:
-            # Consulta a la tabla 'productos', incluyendo campos anidados de las relaciones
-            response = supabase.from_("productos").select("""
-                id_producto,
-                nombre,
-                cantidad,
-                precio,
-                unidades(nombre_unidad),
-                categorias(nombre_categoria)
-            """).order("id_producto", desc=False).execute()
-
-            productos = response.data  # Lista de productos obtenidos
-
-            # Recorrer cada producto y agregarlo como fila a la tabla
-            for producto in productos:
-                tree.insert("", "end", values=(
-                    producto['id_producto'],                     # ID del producto
-                    producto['nombre'],                          # Nombre del producto
-                    producto['cantidad'],                        # Cantidad disponible
-                    producto['precio'],                          # Precio unitario
-                    producto['unidades']['nombre_unidad'],       # Unidad (relación con tabla 'unidades')
-                    producto['categorias']['nombre_categoria']   # Categoría (relación con tabla 'categorias')
-                ))
-        except Exception as e:
-            # En caso de error durante la carga de datos, imprimir el error
-            print("Error al cargar productos:", str(e))
-
-    # Llama a la función de carga al iniciar el frame
-    cargar_datos()
-
-    # Devuelve el frame creado para ser usado en la interfaz principal
-    return frame, tree, cargar_datos
+    return frame, tree, recargar_tabla

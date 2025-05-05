@@ -40,10 +40,10 @@ botones_frame = tk.Frame(frame_menu, bg="white")
 botones_frame.pack(pady=15)
 
 # Se crean frames para cada vista
-frame_agregar = crear_frame_agregar(root)
 
 frame_mostrar, tabla_productos, recargar_tabla = crear_frame_mostrar(root)
 
+frame_agregar = crear_frame_agregar(root, recargar_tabla=recargar_tabla)
 
 frame_reporte = crear_frame_reporte(root)
 
@@ -71,8 +71,10 @@ def mostrar_frame_mostrar():
     frame_menu.pack_forget()
     frame_agregar.pack_forget()
     frame_reporte.pack_forget()
+    
+    recargar_tabla()  # Se recargan los datos cada vez que se accede
     frame_mostrar.pack(fill="both", expand=True)
-    btn_volver_menu.place(x=10, y=10) 
+    btn_volver_menu.place(x=10, y=10)
 
 # Funcion para mostrar el frame de reporte
 def mostrar_frame_reporte():

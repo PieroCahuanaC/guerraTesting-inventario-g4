@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 from services.supabase_service import supabase  # Importar conexión a Supabase
 
-def crear_frame_agregar(root):
+def crear_frame_agregar(root, recargar_tabla=None):
     # Crea frame principal con fondo blanco
     frame = tk.Frame(root, bg="white")
     frame.grid_columnconfigure(0, weight=1)
@@ -108,8 +108,11 @@ def crear_frame_agregar(root):
             unidad_var.set("Selecciona unidad")
             categoria_var.set("Selecciona categoría")
 
+             # ACTUALIZA la tabla al instante
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el producto:\n{str(e)}")
+
 
     # Botón que llama a la función guardar_producto()
     btn_guardar = tk.Button(frame, text="Guardar producto", command=guardar_producto,
