@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import ttk
 from services.supabase_service import supabase
 from vistas.editar_producto import abrir_ventana_edicion
+from tkinter import messagebox
+from tkinter import ttk
 
 # Función principal que construye y retorna el frame para mostrar el inventario
 def crear_frame_mostrar(root):
@@ -77,4 +78,45 @@ def crear_frame_mostrar(root):
 
     tree.bind("<Double-1>", abrir_ventana_emergente)
 
+    #Funcionalidad de eliminar productos
+    def eliminar_producto():
+        # Obtener el ID del ítem seleccionado en la tabla
+        item_id = tree.focus()
+        if not item_id:
+            messagebox.showwarning("Advertencia", "Selecciona un producto para eliminar.")
+            return
+        # Obtener los valores del producto seleccionado
+        valores = tree.item(item_id, "values")
+        if not valores:
+            return
+
+         # Extraer el ID y nombre del producto desde la fila seleccionada
+        id_producto = int(valores[0])
+        nombre = valores[1]
+
+        # Mostrar cuadro de confirmación antes de eliminar
+        confirmacion = messagebox.askyesno("Confirmar eliminación", f"¿Estás seguro de que deseas eliminar '{nombre}'?")
+        if not confirmacion:
+            return
+
+        try:
+            # Ejecutar eliminación en la tabla 'productos' de Supabase
+            supabase.table("productos").delete().eq("id_producto", id_producto).execute()
+            
+             # Mostrar mensaje de éxito
+            messagebox.showinfo("Éxito", "Producto eliminado correctamente.")
+            
+             # Refrescar tabla para reflejar el cambio
+            recargar_tabla()
+        except Exception as e:
+            # Mostrar mensaje de error en caso de fallo
+            messagebox.showerror("Error", f"No se pudo eliminar el producto:\n{str(e)}")
+
+    # Botón fuera de la función eliminar_producto
+    btn_eliminar = tk.Button(frame, text="Eliminar producto seleccionado", command=eliminar_producto,
+                             font=("Sans-serif", 14, "bold"), bg="red", fg="white", height=2)
+    btn_eliminar.pack(pady=(5, 20))
+    
+    cargar_datos()
+    
     return frame, tree, recargar_tabla
