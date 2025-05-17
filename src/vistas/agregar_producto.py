@@ -42,8 +42,16 @@ def crear_frame_agregar(root, recargar_tabla=None):
     tk.Label(frame, text="Cantidad:", font=("Sans-serif", 16), bg="white").grid(row=2, column=1, sticky="e", pady=5)
     tk.Entry(frame, textvariable=cantidad_var, font=("Sans-serif", 16)).grid(row=2, column=2, sticky="w", pady=5)
 
+
+    # Validar precio en tiempo real (máximo 2 decimales)
+    def validar_precio_entrada(texto):
+        return re.fullmatch(r"^\d{0,7}(\.\d{0,2})?$", texto) is not None
+
+    vcmd = frame.register(validar_precio_entrada)
+
     tk.Label(frame, text="Precio (S/.):", font=("Sans-serif", 16), bg="white").grid(row=3, column=1, sticky="e", pady=5)
-    tk.Entry(frame, textvariable=precio_var, font=("Sans-serif", 16)).grid(row=3, column=2, sticky="w", pady=5)
+    tk.Entry(frame, textvariable=precio_var, font=("Sans-serif", 16),
+             validate="key", validatecommand=(vcmd, "%P")).grid(row=3, column=2, sticky="w", pady=5)
 
     # Menú desplegable: Unidad
     tk.Label(frame, text="Unidad:", font=("Sans-serif", 16), bg="white").grid(row=4, column=1, sticky="e", pady=5)
