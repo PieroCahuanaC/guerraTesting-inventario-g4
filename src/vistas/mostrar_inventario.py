@@ -43,7 +43,7 @@ def crear_frame_mostrar(root):
     entry_busqueda.pack(side="left", padx=(10, 5))
     
     # Definición de columnas para el Treeview
-    columns = ("ID", "Nombre", "Cantidad", "Precio", "Unidad", "Categoría")
+    columns = ("ID", "Nombre", "Cantidad", "Precio (S/.)", "Unidad", "Categoría")
     tree = ttk.Treeview(frame, columns=columns, show="headings", height=15)
 
     # Configurar encabezados y centrado de columnas

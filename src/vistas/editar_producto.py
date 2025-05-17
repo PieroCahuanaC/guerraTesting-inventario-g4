@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from services.supabase_service import supabase
+import re
 
 # Variable global para evitar múltiples ventanas de edición simultáneas
 ventana_edicion_activa = False
@@ -17,6 +18,12 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     - recargar_tabla: Función opcional que se ejecuta para volver a cargar los datos del inventario en pantalla.
     """
     global ventana_edicion_activa
+
+    #Para que solo se pueda escribir 2 decimales maximo
+    def validar_precio_entrada(texto):
+        import re
+        # Permitir solo números con máximo 2 decimales
+        return re.fullmatch(r"^\d{0,7}(\.\d{0,2})?$", texto) is not None
 
     # Evita que se abran múltiples ventanas de edición
     if ventana_edicion_activa:
@@ -74,9 +81,26 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     tk.Label(ventana, text="Editar Producto", font=("Sans-serif", 20, "bold"), bg="white").pack(pady=20)
 
     # Campos de texto
-    for label, var in [("Nombre:", nombre_var), ("Cantidad:", cantidad_var), ("Precio:", precio_var)]:
-        tk.Label(ventana, text=label, font=("Sans-serif", 14), bg="white").pack()
-        tk.Entry(ventana, textvariable=var, font=("Sans-serif", 14)).pack(pady=5)
+    # Campo: Nombre
+    tk.Label(ventana, text="Nombre:", font=("Sans-serif", 14), bg="white").pack()
+    tk.Entry(ventana, textvariable=nombre_var, font=("Sans-serif", 14)).pack(pady=5)
+
+    # Campo: Cantidad
+    tk.Label(ventana, text="Cantidad:", font=("Sans-serif", 14), bg="white").pack()
+    tk.Entry(ventana, textvariable=cantidad_var, font=("Sans-serif", 14)).pack(pady=5)
+
+    # Campo: Precio con validación de máximo 2 decimales
+    tk.Label(ventana, text="Precio:", font=("Sans-serif", 14), bg="white").pack()
+    vcmd = ventana.register(validar_precio_entrada)
+    entry_precio = tk.Entry(
+        ventana,
+        textvariable=precio_var,
+        font=("Sans-serif", 14),
+        validate="key",
+        validatecommand=(vcmd, "%P")
+    )
+    entry_precio.pack(pady=5)
+
 
     # Menú desplegable para unidad
     tk.Label(ventana, text="Unidad:", font=("Sans-serif", 14), bg="white").pack()
@@ -88,14 +112,41 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     opciones_categorias = [c["nombre_categoria"] for c in categorias]
     tk.OptionMenu(ventana, categoria_var, *opciones_categorias).pack(pady=5)
 
+
     # Función para guardar los cambios en la base de datos
     def guardar_cambios():
         try:
             nuevo_nombre = nombre_var.get().strip()
-            nueva_cantidad = int(cantidad_var.get().strip())
-            nuevo_precio = float(precio_var.get().strip())
+            cantidad_str = cantidad_var.get().strip()
+            precio_str = precio_var.get().strip()
             nueva_unidad = unidad_var.get().strip()
             nueva_categoria = categoria_var.get().strip()
+
+            # Validar nombre: solo letras, números, espacios, comas, guiones. Mínimo 3 caracteres
+            if not re.match(r"^[\w\sáéíóúÁÉÍÓÚñÑ.,-]{3,50}$", nuevo_nombre):
+                messagebox.showerror("Error", "El nombre debe tener entre 3 y 50 caracteres y solo contener letras, números, espacios, comas o guiones.")
+                return
+
+            # Validar campos vacíos
+            if not nuevo_nombre or not cantidad_str or not precio_str:
+                messagebox.showerror("Error", "Todos los campos deben estar completos.")
+                return
+
+            # Validar que cantidad y precio sean números válidos
+            if not cantidad_str.isdigit() or int(cantidad_str) <= 0:
+                messagebox.showerror("Error", "La cantidad debe ser un número entero positivo.")
+                return
+
+            try:
+                nuevo_precio = float(precio_str)
+                if nuevo_precio <= 0:
+                    raise ValueError
+            except ValueError:
+                messagebox.showerror("Error", "El precio debe ser un número decimal positivo.")
+                return
+
+            nueva_cantidad = int(cantidad_str)
+
 
             # Validación básica
             if not nuevo_nombre:
