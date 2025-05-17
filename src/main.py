@@ -10,6 +10,7 @@ from vistas.descargar_reporte import crear_frame_reporte
 
 # Ventaja principal
 root = tk.Tk()
+root.configure(bg="white")  # Fuerza fondo blanco en root
 root.title("Menú Principal - Muebles Moderno")
 root.geometry("800x800")
 root.state("zoomed")  # Maximiza la ventana
