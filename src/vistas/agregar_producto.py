@@ -119,9 +119,11 @@ def crear_frame_agregar(root, recargar_tabla=None):
 
         # Validación del nombre con expresión regular
   
-        if not re.fullmatch(r"^[\w\sáéíóúÁÉÍÓÚñÑ.,-]+$", nombre):
-            messagebox.showerror("Error", "El nombre solo puede contener letras, números, espacios, comas o guiones.")
+        # Validación del nombre: debe comenzar con mínimo 3 letras, luego pueden ir números o signos
+        if not re.fullmatch(r"[A-Za-záéíóúÁÉÍÓÚñÑ]{3,}[A-Za-z0-9\s.,-]*", nombre):
+            messagebox.showerror("Error", "El nombre debe comenzar con al menos 3 letras antes de incluir números o signos.")
             return
+
 
         # Validar longitud mínima
         if len(nombre) < 3:

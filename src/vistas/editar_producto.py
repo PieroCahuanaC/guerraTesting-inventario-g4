@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import messagebox
 from services.supabase_service import supabase
 import re
-
 import unicodedata
 
 def normalizar_nombre(nombre):
@@ -33,7 +32,6 @@ def formatear_nombre(nombre):
     nombre = limpiar_espacios(nombre)
     return nombre.title()
 
-
 # Variable global para evitar múltiples ventanas de edición simultáneas
 ventana_edicion_activa = False
 
@@ -48,7 +46,7 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     """
     global ventana_edicion_activa
 
-    #Para que solo se pueda escribir 2 decimales maximo
+    # Para que solo se pueda escribir 2 decimales máximo
     def validar_precio_entrada(texto):
         import re
         # Permitir solo números con máximo 2 decimales
@@ -102,7 +100,6 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     nombre_var = tk.StringVar(value=producto['nombre'])
     cantidad_var = tk.StringVar(value=str(producto['cantidad']))
     precio_var = tk.StringVar(value=str(producto['precio']))
-
     unidad_var = tk.StringVar(value=producto['unidades']['nombre_unidad'])
     categoria_var = tk.StringVar(value=producto['categorias']['nombre_categoria'])
 
@@ -130,7 +127,6 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     )
     entry_precio.pack(pady=5)
 
-
     # Menú desplegable para unidad
     tk.Label(ventana, text="Unidad:", font=("Sans-serif", 14), bg="white").pack()
     opciones_unidades = [u["nombre_unidad"] for u in unidades]
@@ -140,7 +136,6 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     tk.Label(ventana, text="Categoría:", font=("Sans-serif", 14), bg="white").pack()
     opciones_categorias = [c["nombre_categoria"] for c in categorias]
     tk.OptionMenu(ventana, categoria_var, *opciones_categorias).pack(pady=5)
-
 
     # Función para guardar los cambios en la base de datos
     def guardar_cambios():
@@ -154,10 +149,9 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
             nueva_unidad = unidad_var.get().strip()
             nueva_categoria = categoria_var.get().strip()
 
-            # Validar nombre: solo letras, números, espacios, comas, guiones. Mínimo 3 caracteres
-            # Validar caracteres permitidos
-            if not re.fullmatch(r"^[\w\sáéíóúÁÉÍÓÚñÑ.,-]+$", nuevo_nombre):
-                messagebox.showerror("Error", "El nombre solo puede contener letras, números, espacios, comas o guiones.")
+            # Validar que el nombre comience con mínimo 3 letras y luego números o signos opcionalmente
+            if not re.fullmatch(r"[A-Za-záéíóúÁÉÍÓÚñÑ]{3,}[A-Za-z0-9\s.,-]*", nuevo_nombre):
+                messagebox.showerror("Error", "El nombre debe comenzar con al menos 3 letras antes de incluir números o signos.")
                 return
 
             # Validar longitud mínima
@@ -169,6 +163,7 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
             if len(nuevo_nombre) > 50:
                 messagebox.showerror("Error", "El nombre no puede tener más de 50 caracteres.")
                 return
+
             # Validar campos vacíos
             if not nuevo_nombre or not cantidad_str or not precio_str:
                 messagebox.showerror("Error", "Todos los campos deben estar completos.")
@@ -189,18 +184,16 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
 
             nueva_cantidad = int(cantidad_str)
 
-
             # Validación básica
             if not nuevo_nombre:
                 raise ValueError("El nombre no puede estar vacío.")
-            # Validar que no exista otro producto con el mismo nombre
-            nombre_normalizado = nuevo_nombre.lower()
+
+            # Validar que no exista otro producto con el mismo nombre (normalizado)
             respuesta_existente = supabase.table("productos").select("id_producto", "nombre").execute()
             for prod in respuesta_existente.data:
                 if normalizar_nombre(prod["nombre"]) == nombre_normalizado and prod["id_producto"] != producto["id_producto"]:
                     messagebox.showwarning("Duplicado", f"Ya existe otro producto con un nombre similar: '{prod['nombre']}'")
                     return
-
 
             # Buscar IDs de unidad y categoría seleccionadas
             id_unidad = next(u["id_unidad"] for u in unidades if u["nombre_unidad"] == nueva_unidad)
