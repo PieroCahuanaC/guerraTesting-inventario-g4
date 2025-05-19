@@ -80,7 +80,7 @@ def crear_frame_agregar(root, recargar_tabla=None):
 
     # Validar precio en tiempo real (máximo 2 decimales)
     def validar_precio_entrada(texto):
-        return re.fullmatch(r"^\d{0,7}(\.\d{0,2})?$", texto) is not None
+        return re.fullmatch(r"^\d{0,9}(\.\d{0,2})?$", texto) is not None
 
     vcmd = frame.register(validar_precio_entrada)
 
@@ -203,7 +203,12 @@ def crear_frame_agregar(root, recargar_tabla=None):
                 recargar_tabla()
 
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo guardar el producto:\n{str(e)}")
+            mensaje_error = str(e)
+            if "Failed to establish a new connection" in mensaje_error or "Name or service not known" in mensaje_error:
+                messagebox.showerror("Error de conexión", "No se pudo guardar el producto porque no hay conexión a internet.\nVerifica tu red e inténtalo nuevamente.")
+            else:
+                messagebox.showerror("Error inesperado", f"No se pudo guardar el producto:\n{mensaje_error}")
+
 
     # Botón para guardar el producto
     btn_guardar = tk.Button(frame, text="Guardar producto", command=guardar_producto,

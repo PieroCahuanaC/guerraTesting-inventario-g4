@@ -50,7 +50,7 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     def validar_precio_entrada(texto):
         import re
         # Permitir solo números con máximo 2 decimales
-        return re.fullmatch(r"^\d{0,7}(\.\d{0,2})?$", texto) is not None
+        return re.fullmatch(r"^\d{0,9}(\.\d{0,2})?$", texto) is not None
 
     # Evita que se abran múltiples ventanas de edición
     if ventana_edicion_activa:
@@ -214,7 +214,12 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
             on_close()
 
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo actualizar el producto:\n{str(e)}")
+            mensaje_error = str(e)
+            if "Failed to establish a new connection" in mensaje_error or "Name or service not known" in mensaje_error:
+                messagebox.showerror("Error de conexión", "No se pudo actualizar el producto porque no hay conexión a internet.\nVerifica tu red e inténtalo nuevamente.")
+            else:
+                messagebox.showerror("Error inesperado", f"No se pudo actualizar el producto:\n{mensaje_error}")
+
 
     # Botón para guardar cambios
     tk.Button(
