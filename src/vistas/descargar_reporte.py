@@ -44,6 +44,7 @@ def crear_frame_reporte(root):
             for idx, p in enumerate(productos, start=1):
                 datos_limpios.append({
                     "N°.": idx,
+                    "ID": p["id_producto"],
                     "Nombre": p["nombre"],
                     "Cantidad": p["cantidad"],
                     "Precio": p["precio"],
@@ -72,16 +73,23 @@ def crear_frame_reporte(root):
             # Estilos
             header_font = Font(bold=True, color="FFFFFF")
             header_fill = PatternFill("solid", fgColor="4CAF50")
+            id_fill = PatternFill("solid", fgColor="B3E5FC")  # celeste claro
+
             border = Border(left=Side(style='thin'), right=Side(style='thin'),
                             top=Side(style='thin'), bottom=Side(style='thin'))
             center_align = Alignment(horizontal="center", vertical="center")
 
             # Aplicar estilos a encabezado
+            # Aplicar estilos a encabezado con color especial para columna "N°."
             for cell in ws[2]:
                 cell.font = header_font
-                cell.fill = header_fill
                 cell.border = border
                 cell.alignment = center_align
+                if cell.value == "N°.":
+                    cell.fill = PatternFill("solid", fgColor="1976D2")  # Azul oscuro
+                else:
+                    cell.fill = header_fill  # Verde original
+
 
             # Aplicar estilos a datos
             for row in ws.iter_rows(min_row=3, max_row=ws.max_row, max_col=ws.max_column):
@@ -90,9 +98,13 @@ def crear_frame_reporte(root):
                     cell.alignment = center_align
 
             # Ajuste de anchos
-            ws.column_dimensions["B"].width = 35  # Nombre
-            ws.column_dimensions["C"].width = 15  # Cantidad
-            ws.column_dimensions["F"].width = 18  # Categoría
+            ws.column_dimensions["A"].width = 10  # N°.
+            ws.column_dimensions["B"].width = 10  # ID
+            ws.column_dimensions["C"].width = 35  # Nombre
+            ws.column_dimensions["D"].width = 26  # Cantidad
+            ws.column_dimensions["E"].width = 26  # Precio
+            ws.column_dimensions["F"].width = 26  # Unidad
+            ws.column_dimensions["G"].width = 25  # Categoría
 
             wb.save(ruta_salida)
 
@@ -125,17 +137,19 @@ def crear_frame_reporte(root):
             productos = sorted(productos, key=lambda p: p["id_producto"])
 
             datos_limpios = [
-                ["N°.", "Nombre", "Cantidad", "Precio (S/.)", "Unidad", "Categoría"]
+                ["N°.", "ID", "Nombre", "Cantidad", "Precio (S/.)", "Unidad", "Categoría"]
             ]
             for idx, p in enumerate(productos, start=1):
                 datos_limpios.append([
                     idx,
+                    p["id_producto"],
                     p["nombre"],
                     p["cantidad"],
                     f"{p['precio']:.2f}",
                     p["unidades"]["nombre_unidad"],
                     p["categorias"]["nombre_categoria"]
                 ])
+
 
             from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
             from reportlab.lib import colors
@@ -158,15 +172,21 @@ def crear_frame_reporte(root):
 
             tabla = Table(datos_limpios, repeatRows=1)
             tabla.setStyle(TableStyle([
-                ("BACKGROUND", (0, 0), (-1, 0), colors.gray),
+                ("BACKGROUND", (0, 0), (-1, 0), colors.gray),  # Fila de encabezado
                 ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
                 ("ALIGN", (0, 0), (-1, -1), "CENTER"),
                 ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
                 ("FONTSIZE", (0, 0), (-1, -1), 10),
                 ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+
+                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),  # Cuerpo general
+
+                ("BACKGROUND", (0, 0), (0, -1), colors.steelblue),  # Columna "N°." completa
+                ("TEXTCOLOR", (0, 0), (0, -1), colors.white),  # Texto blanco en columna "N°."
+
                 ("GRID", (0, 0), (-1, -1), 1, colors.black)
             ]))
+
 
             elementos.append(tabla)
             doc.build(elementos)
