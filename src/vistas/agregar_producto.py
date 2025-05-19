@@ -2,6 +2,41 @@ import tkinter as tk
 from tkinter import messagebox
 from services.supabase_service import supabase  # Conexión a la base de datos Supabase
 import re  # Para validación del nombre del producto
+import unicodedata
+
+
+def normalizar_nombre(nombre):
+    """
+    Normaliza un nombre quitando tildes, signos y múltiples espacios.
+    Devuelve el texto en minúsculas, sin tildes ni símbolos innecesarios.
+    """
+    nombre = nombre.strip().lower()
+    nombre = unicodedata.normalize('NFD', nombre)
+    nombre = nombre.encode('ascii', 'ignore').decode('utf-8')  # quita tildes
+    nombre = re.sub(r'[^\w\s]', '', nombre)  # elimina signos
+    nombre = re.sub(r'\s+', ' ', nombre)  # reemplaza múltiples espacios por uno
+    return nombre
+
+def limpiar_espacios(nombre):
+    """
+    Elimina espacios múltiples y los reemplaza por uno solo.
+    Mantiene mayúsculas, tildes y signos.
+    """
+    nombre = nombre.strip()
+    nombre = re.sub(r'\s+', ' ', nombre)  # reemplaza múltiples espacios por uno solo
+    return nombre
+
+
+def formatear_nombre(nombre):
+    """
+    Aplica formato estándar: primera letra de cada palabra en mayúscula,
+    sin múltiples espacios.
+    Ejemplo: "  hola   MUNDO  " → "Hola Mundo"
+    """
+    nombre = nombre.strip()
+    nombre = re.sub(r'\s+', ' ', nombre)
+    return nombre.title()
+
 
 def crear_frame_agregar(root, recargar_tabla=None):
     """
@@ -73,7 +108,10 @@ def crear_frame_agregar(root, recargar_tabla=None):
         Valida e inserta un nuevo producto en la base de datos Supabase.
         """
         # Obtener valores del formulario
-        nombre = nombre_var.get().strip()
+        nombre_original = nombre_var.get()
+        nombre = limpiar_espacios(nombre_original)
+        nombre = formatear_nombre(nombre)  # Aplica formato visual limpio
+        
         cantidad = cantidad_var.get().strip()
         precio = precio_var.get().strip()
         unidad = unidad_var.get().strip()
@@ -110,12 +148,13 @@ def crear_frame_agregar(root, recargar_tabla=None):
                 raise Exception("Categoría no encontrada en la base de datos.")
             id_categoria = categoria_response.data[0]["id_categoria"]
 
-            # Validación de nombre duplicado (insensible a mayúsculas)
-            nombre_normalizado = nombre.lower()
+           
+            # Validación de nombre duplicado con normalización completa
+            nombre_normalizado = normalizar_nombre(nombre)
             respuesta_existente = supabase.table("productos").select("nombre").execute()
             for prod in respuesta_existente.data:
-                if prod["nombre"].lower() == nombre_normalizado:
-                    messagebox.showwarning("Duplicado", f"Ya existe un producto con el nombre '{prod['nombre']}' (sin distinguir mayúsculas).")
+                if normalizar_nombre(prod["nombre"]) == nombre_normalizado:
+                    messagebox.showwarning("Duplicado", f"Ya existe un producto con un nombre similar: '{prod['nombre']}'")
                     return
 
             # Inserción del producto

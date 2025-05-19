@@ -5,6 +5,35 @@ from tkinter import messagebox
 from services.supabase_service import supabase
 import re
 
+import unicodedata
+
+def normalizar_nombre(nombre):
+    """
+    Normaliza el nombre para evitar duplicados: minúsculas, sin tildes, sin signos y espacios simples.
+    """
+    nombre = nombre.strip().lower()
+    nombre = unicodedata.normalize('NFD', nombre)
+    nombre = nombre.encode('ascii', 'ignore').decode('utf-8')  # elimina tildes
+    nombre = re.sub(r'[^\w\s]', '', nombre)  # elimina signos
+    nombre = re.sub(r'\s+', ' ', nombre)
+    return nombre
+
+def limpiar_espacios(nombre):
+    """
+    Elimina múltiples espacios y los reemplaza por uno solo.
+    """
+    nombre = nombre.strip()
+    nombre = re.sub(r'\s+', ' ', nombre)
+    return nombre
+
+def formatear_nombre(nombre):
+    """
+    Aplica formato visual estándar: primera letra de cada palabra en mayúscula.
+    """
+    nombre = limpiar_espacios(nombre)
+    return nombre.title()
+
+
 # Variable global para evitar múltiples ventanas de edición simultáneas
 ventana_edicion_activa = False
 
@@ -116,7 +145,10 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
     # Función para guardar los cambios en la base de datos
     def guardar_cambios():
         try:
-            nuevo_nombre = nombre_var.get().strip()
+            nombre_original = nombre_var.get()
+            nuevo_nombre = formatear_nombre(nombre_original)  # Visual limpio
+            nombre_normalizado = normalizar_nombre(nombre_original)  # Para validación
+
             cantidad_str = cantidad_var.get().strip()
             precio_str = precio_var.get().strip()
             nueva_unidad = unidad_var.get().strip()
@@ -155,9 +187,10 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
             nombre_normalizado = nuevo_nombre.lower()
             respuesta_existente = supabase.table("productos").select("id_producto", "nombre").execute()
             for prod in respuesta_existente.data:
-                if prod["nombre"].lower() == nombre_normalizado and prod["id_producto"] != producto["id_producto"]:
-                    messagebox.showwarning("Duplicado", f"Ya existe otro producto con el nombre '{prod['nombre']}' (sin distinguir mayúsculas).")
+                if normalizar_nombre(prod["nombre"]) == nombre_normalizado and prod["id_producto"] != producto["id_producto"]:
+                    messagebox.showwarning("Duplicado", f"Ya existe otro producto con un nombre similar: '{prod['nombre']}'")
                     return
+
 
             # Buscar IDs de unidad y categoría seleccionadas
             id_unidad = next(u["id_unidad"] for u in unidades if u["nombre_unidad"] == nueva_unidad)

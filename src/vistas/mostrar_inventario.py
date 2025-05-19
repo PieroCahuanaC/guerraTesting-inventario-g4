@@ -6,6 +6,8 @@ from vistas.eliminar_producto import eliminar_producto
 import os
 from PIL import Image, ImageTk
 
+
+
 def crear_frame_mostrar(root):
     """
     Crea y retorna un frame que muestra el inventario de productos en un Treeview interactivo.
