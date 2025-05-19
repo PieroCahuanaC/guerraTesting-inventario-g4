@@ -214,11 +214,13 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
             on_close()
 
         except Exception as e:
-            mensaje_error = str(e)
-            if "Failed to establish a new connection" in mensaje_error or "Name or service not known" in mensaje_error:
+            mensaje_error = str(e).lower()
+            if ("failed to establish a new connection" in mensaje_error or 
+                "name or service not known" in mensaje_error or
+                "getaddrinfo failed" in mensaje_error):
                 messagebox.showerror("Error de conexión", "No se pudo actualizar el producto porque no hay conexión a internet.\nVerifica tu red e inténtalo nuevamente.")
             else:
-                messagebox.showerror("Error inesperado", f"No se pudo actualizar el producto:\n{mensaje_error}")
+                messagebox.showerror("Error inesperado", f"No se pudo actualizar el producto:\n{str(e)}")
 
 
     # Botón para guardar cambios

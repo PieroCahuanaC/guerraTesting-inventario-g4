@@ -9,6 +9,21 @@ from PIL import Image, ImageTk
 import unicodedata
 import re
 
+#para mostrar mensaje de error personalizado si no hay internet
+def mostrar_error_conexion_si_aplica(e, contexto="cargar los productos"):
+    mensaje = str(e).lower()
+    if any(palabra in mensaje for palabra in [
+        "getaddrinfo failed",
+        "failed to establish",
+        "name or service not known",
+        "temporary failure in name resolution"
+    ]):
+        messagebox.showerror("Error de conexión",
+                             f"No se pudo {contexto} porque no hay conexión a internet.\nVerifica tu red e inténtalo nuevamente.")
+    else:
+        messagebox.showerror("Error inesperado", f"No se pudo {contexto}:\n{e}")
+
+
 def normalizar_nombre(nombre):
     """
     Convierte texto a minúsculas, elimina tildes, signos y espacios extra.
@@ -175,7 +190,7 @@ def crear_frame_mostrar(root):
                     producto['categorias']['nombre_categoria']
                 ))
         except Exception as e:
-            print("Error al cargar productos:", str(e))
+            mostrar_error_conexion_si_aplica(e, "cargar los productos")
 
     def recargar_tabla():
         """
@@ -226,9 +241,8 @@ def crear_frame_mostrar(root):
                     producto['unidades']['nombre_unidad'],
                     producto['categorias']['nombre_categoria']
                 ))
-
         except Exception as e:
-            print("Error al buscar productos:", str(e))
+            mostrar_error_conexion_si_aplica(e, "buscar productos")
 
     def abrir_ventana_emergente(event):
         """

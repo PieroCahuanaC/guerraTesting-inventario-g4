@@ -9,6 +9,21 @@ from reportlab.pdfgen import canvas  # Generador de PDFs (no usado directamente 
 from services.supabase_service import supabase  # Cliente de conexión a Supabase
 from datetime import datetime  # Para obtener fecha y hora actual
 
+#para mostrar mensaje de error personalizado si no hay internet
+def mostrar_error_conexion_si_aplica(e, contexto="realizar la acción"):
+    mensaje = str(e).lower()
+    if any(palabra in mensaje for palabra in [
+        "getaddrinfo failed",
+        "failed to establish",
+        "name or service not known",
+        "temporary failure in name resolution"
+    ]):
+        messagebox.showerror("Error de conexión",
+                             f"No se pudo {contexto} porque no hay conexión a internet.\nVerifica tu red e inténtalo nuevamente.")
+    else:
+        messagebox.showerror("Error inesperado", f"No se pudo {contexto}:\n{e}")
+
+
 def crear_frame_reporte(root):
     """
     Crea un frame de interfaz gráfica para generar reportes en Excel y PDF
@@ -110,7 +125,7 @@ def crear_frame_reporte(root):
 
             messagebox.showinfo("Éxito", "Reporte Excel generado correctamente en la carpeta del proyecto.")
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo generar el reporte Excel:\n{str(e)}")
+            mostrar_error_conexion_si_aplica(e, "generar el reporte Excel")
 
     # Botón para generar Excel
     btn_excel = tk.Button(frame, text="Generar y Guardar Excel", command=generar_excel,
@@ -193,7 +208,7 @@ def crear_frame_reporte(root):
 
             messagebox.showinfo("Éxito", "PDF generado correctamente en la carpeta del proyecto.")
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo generar el PDF:\n{str(e)}")
+            mostrar_error_conexion_si_aplica(e, "generar el PDF")
 
     # Botón para generar PDF
     btn_pdf = tk.Button(frame, text="Generar y Guardar PDF", command=generar_pdf,
