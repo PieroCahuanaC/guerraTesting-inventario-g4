@@ -1,4 +1,3 @@
-
 import tkinter as tk
 import os 
 from tkinter import messagebox
@@ -36,11 +35,11 @@ def crear_frame_reporte(root):
             productos = response.data
             productos = sorted(productos, key=lambda p: p["id_producto"])  # Ordenar por ID
 
-            # Procesar datos en un formato plano para Excel
+            # Procesar datos con ID visual secuencial
             datos_limpios = []
-            for p in productos:
+            for idx, p in enumerate(productos, start=1):
                 datos_limpios.append({
-                    "ID": p["id_producto"],
+                    "ID": idx,
                     "Nombre": p["nombre"],
                     "Cantidad": p["cantidad"],
                     "Precio": p["precio"],
@@ -50,8 +49,48 @@ def crear_frame_reporte(root):
 
             # Crear DataFrame y guardar como archivo Excel
             df = pd.DataFrame(datos_limpios)
-            ruta_salida = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../reporte_inventario.xlsx")
+            ruta_salida = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../reporte_inventario.xlsx"))
             df.to_excel(ruta_salida, index=False)
+
+            # --- APLICAR ESTILOS CON openpyxl ---
+            from openpyxl import load_workbook
+            from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+
+            wb = load_workbook(ruta_salida)
+            ws = wb.active
+
+            # Insertar fecha como primera fila
+            ws.insert_rows(1)
+            fecha_actual = datetime.now().strftime("%d/%m/%Y a las %H:%M")
+            ws["A1"] = f"Reporte generado el {fecha_actual}"
+            ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=6)
+
+            # Estilos
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill("solid", fgColor="4CAF50")
+            border = Border(left=Side(style='thin'), right=Side(style='thin'),
+                            top=Side(style='thin'), bottom=Side(style='thin'))
+            center_align = Alignment(horizontal="center", vertical="center")
+
+            # Aplicar estilos a encabezado
+            for cell in ws[2]:
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.border = border
+                cell.alignment = center_align
+
+            # Aplicar estilos a datos
+            for row in ws.iter_rows(min_row=3, max_row=ws.max_row, max_col=ws.max_column):
+                for cell in row:
+                    cell.border = border
+                    cell.alignment = center_align
+
+            # Ajuste de anchos
+            ws.column_dimensions["B"].width = 35  # Nombre
+            ws.column_dimensions["C"].width = 15  # Cantidad
+            ws.column_dimensions["F"].width = 18  # Categoría
+
+            wb.save(ruta_salida)
 
             messagebox.showinfo("Éxito", "Reporte Excel generado correctamente en la carpeta del proyecto.")
         except Exception as e:
@@ -69,21 +108,18 @@ def crear_frame_reporte(root):
         del inventario organizados en una tabla.
         """
         try:
-            # Consultar datos con relaciones
             response = supabase.table("productos").select(
                 "id_producto, nombre, cantidad, precio, unidades(nombre_unidad), categorias(nombre_categoria)"
             ).execute()
 
-            productos = response.data
-            productos = sorted(productos, key=lambda p: p["id_producto"])  # Ordenar por ID
+            productos = sorted(response.data, key=lambda p: p["id_producto"])
 
-            # Cabecera + contenido plano para tabla PDF
             datos_limpios = [
                 ["ID", "Nombre", "Cantidad", "Precio (S/.)", "Unidad", "Categoría"]
             ]
-            for p in productos:
+            for idx, p in enumerate(productos, start=1):
                 datos_limpios.append([
-                    p["id_producto"],
+                    idx,
                     p["nombre"],
                     p["cantidad"],
                     f"{p['precio']:.2f}",
@@ -91,30 +127,25 @@ def crear_frame_reporte(root):
                     p["categorias"]["nombre_categoria"]
                 ])
 
-            # Importar herramientas de formateo para PDF
             from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
             from reportlab.lib import colors
             from reportlab.lib.styles import getSampleStyleSheet
 
-            # Definir nombre y ruta del archivo PDF
-            ruta_pdf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../reporte_inventario.pdf")
+            ruta_pdf = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../reporte_inventario.pdf"))
             doc = SimpleDocTemplate(ruta_pdf, pagesize=letter)
 
             elementos = []
             styles = getSampleStyleSheet()
 
-            # Título del reporte
             titulo = Paragraph("Reporte de Inventario - Muebles Moderno", styles["Title"])
             elementos.append(titulo)
             elementos.append(Spacer(1, 20))
 
-            # Fecha y hora de generación
             fecha_actual = datetime.now().strftime("%d/%m/%Y a las %H:%M")
             fecha_parrafo = Paragraph(f"Reporte generado el {fecha_actual}", styles["Normal"])
             elementos.append(fecha_parrafo)
             elementos.append(Spacer(1, 20))
 
-            # Construir la tabla con estilos
             tabla = Table(datos_limpios, repeatRows=1)
             tabla.setStyle(TableStyle([
                 ("BACKGROUND", (0, 0), (-1, 0), colors.gray),
@@ -127,7 +158,6 @@ def crear_frame_reporte(root):
                 ("GRID", (0, 0), (-1, -1), 1, colors.black)
             ]))
 
-            # Agregar tabla al documento
             elementos.append(tabla)
             doc.build(elementos)
 
