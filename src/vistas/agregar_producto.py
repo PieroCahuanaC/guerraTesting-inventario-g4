@@ -148,6 +148,15 @@ def crear_frame_agregar(root, recargar_tabla=None):
             messagebox.showerror("Error", "Cantidad debe ser un número entero y precio un número decimal.")
             return
 
+        if cantidad <= 0:
+            messagebox.showerror("Error", "La cantidad debe ser mayor que cero.")
+            return
+
+        if precio <= 0:
+            messagebox.showerror("Error", "El precio debe ser mayor que cero.")
+            return
+
+
         try:
             # Buscar ID de unidad desde Supabase
             unidad_response = supabase.table("unidades").select("id_unidad").eq("nombre_unidad", unidad).execute()

@@ -33,6 +33,10 @@ def crear_frame_reporte(root):
             ).execute()
 
             productos = response.data
+            if not productos:
+                messagebox.showinfo("Sin datos", "No hay productos en el inventario para generar el reporte Excel.")
+                return
+
             productos = sorted(productos, key=lambda p: p["id_producto"])  # Ordenar por ID
 
             # Procesar datos con ID visual secuencial
@@ -112,7 +116,13 @@ def crear_frame_reporte(root):
                 "id_producto, nombre, cantidad, precio, unidades(nombre_unidad), categorias(nombre_categoria)"
             ).execute()
 
-            productos = sorted(response.data, key=lambda p: p["id_producto"])
+            productos = response.data
+
+            if not productos:
+                messagebox.showinfo("Sin datos", "No hay productos en el inventario para generar el reporte PDF.")
+                return
+
+            productos = sorted(productos, key=lambda p: p["id_producto"])
 
             datos_limpios = [
                 ["ID", "Nombre", "Cantidad", "Precio (S/.)", "Unidad", "Categoría"]
