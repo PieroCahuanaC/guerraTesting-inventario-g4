@@ -6,6 +6,20 @@ from vistas.eliminar_producto import eliminar_producto
 import os
 from PIL import Image, ImageTk
 
+import unicodedata
+import re
+
+def normalizar_nombre(nombre):
+    """
+    Convierte texto a minúsculas, elimina tildes, signos y espacios extra.
+    Ej: "Sofá, Modular" → "sofa modular"
+    """
+    nombre = nombre.strip().lower()
+    nombre = unicodedata.normalize('NFD', nombre)
+    nombre = nombre.encode('ascii', 'ignore').decode('utf-8')  # elimina tildes
+    nombre = re.sub(r'[^\w\s]', '', nombre)  # elimina signos
+    nombre = re.sub(r'\s+', ' ', nombre)
+    return nombre
 
 
 def crear_frame_mostrar(root):
@@ -192,7 +206,7 @@ def crear_frame_mostrar(root):
 
             # Filtro por nombre si no está vacío
             if termino_busqueda and termino != "Ingrese el nombre del producto":
-                productos = [p for p in productos if termino_busqueda in p['nombre'].lower()]
+                productos = [p for p in productos if normalizar_nombre(termino_busqueda) in normalizar_nombre(p['nombre'])]
 
             # Filtro por categoría
             if var_categoria.get() and combo_categoria.get():
