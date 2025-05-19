@@ -1,5 +1,6 @@
 from tkinter import messagebox
 from services.supabase_service import supabase
+import traceback
 
 def eliminar_producto(tree, recargar_tabla):
     """
@@ -15,7 +16,7 @@ def eliminar_producto(tree, recargar_tabla):
     3. Elimina el producto por su ID desde la base de datos Supabase.
     4. Muestra mensajes de éxito o error, y actualiza la tabla visual.
     """
-    
+
     # Obtener el ID del elemento seleccionado en la tabla
     item_id = tree.focus()
     if not item_id:
@@ -43,7 +44,15 @@ def eliminar_producto(tree, recargar_tabla):
     # Intentar eliminar el producto en Supabase
     try:
         supabase.table("productos").delete().eq("id_producto", id_producto).execute()
-        messagebox.showinfo("Éxito", "Producto eliminado correctamente.")
+        messagebox.showinfo("Éxito", f"Producto '{nombre}' eliminado correctamente.")
         recargar_tabla()  # Refrescar visualmente la tabla
     except Exception as e:
-        messagebox.showerror("Error", f"No se pudo eliminar el producto:\n{str(e)}")
+        tipo_error = type(e).__name__
+        detalle = traceback.format_exc(limit=1)
+        messagebox.showerror(
+            "Error",
+            f"No se pudo eliminar el producto '{nombre}'.\n\n"
+            f"Tipo de error: {tipo_error}\n"
+            f"Detalle técnico: {str(e)}"
+        )
+        print("Error detallado:", detalle)
