@@ -155,10 +155,20 @@ def abrir_ventana_edicion(id_producto, frame_padre=None, recargar_tabla=None):
             nueva_categoria = categoria_var.get().strip()
 
             # Validar nombre: solo letras, números, espacios, comas, guiones. Mínimo 3 caracteres
-            if not re.match(r"^[\w\sáéíóúÁÉÍÓÚñÑ.,-]{3,50}$", nuevo_nombre):
-                messagebox.showerror("Error", "El nombre debe tener entre 3 y 50 caracteres y solo contener letras, números, espacios, comas o guiones.")
+            # Validar caracteres permitidos
+            if not re.fullmatch(r"^[\w\sáéíóúÁÉÍÓÚñÑ.,-]+$", nuevo_nombre):
+                messagebox.showerror("Error", "El nombre solo puede contener letras, números, espacios, comas o guiones.")
                 return
 
+            # Validar longitud mínima
+            if len(nuevo_nombre) < 3:
+                messagebox.showerror("Error", "El nombre debe tener al menos 3 caracteres.")
+                return
+
+            # Validar longitud máxima
+            if len(nuevo_nombre) > 50:
+                messagebox.showerror("Error", "El nombre no puede tener más de 50 caracteres.")
+                return
             # Validar campos vacíos
             if not nuevo_nombre or not cantidad_str or not precio_str:
                 messagebox.showerror("Error", "Todos los campos deben estar completos.")

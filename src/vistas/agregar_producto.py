@@ -111,15 +111,26 @@ def crear_frame_agregar(root, recargar_tabla=None):
         nombre_original = nombre_var.get()
         nombre = limpiar_espacios(nombre_original)
         nombre = formatear_nombre(nombre)  # Aplica formato visual limpio
-        
+
         cantidad = cantidad_var.get().strip()
         precio = precio_var.get().strip()
         unidad = unidad_var.get().strip()
         categoria = categoria_var.get().strip()
 
         # Validación del nombre con expresión regular
-        if not re.match(r"^[\w\sáéíóúÁÉÍÓÚñÑ.,-]{3,50}$", nombre):
-            messagebox.showerror("Error", "El nombre solo debe contener letras, números, espacios, comas o guiones.\nDebe tener entre 3 y 50 caracteres.")
+  
+        if not re.fullmatch(r"^[\w\sáéíóúÁÉÍÓÚñÑ.,-]+$", nombre):
+            messagebox.showerror("Error", "El nombre solo puede contener letras, números, espacios, comas o guiones.")
+            return
+
+        # Validar longitud mínima
+        if len(nombre) < 3:
+            messagebox.showerror("Error", "El nombre debe tener al menos 3 caracteres.")
+            return
+
+        # Validar longitud máxima
+        if len(nombre) > 50:
+            messagebox.showerror("Error", "El nombre no puede tener más de 50 caracteres.")
             return
 
         # Validar que todos los campos estén completos
