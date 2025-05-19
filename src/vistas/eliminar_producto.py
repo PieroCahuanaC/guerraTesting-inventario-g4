@@ -22,9 +22,13 @@ def eliminar_producto(tree, recargar_tabla):
         messagebox.showwarning("Advertencia", "Selecciona un producto para eliminar.")
         return
 
-    # Obtener los valores de la fila seleccionada (ID, nombre, etc.)
-    valores = tree.item(item_id, "values")
-    if not valores:
+    # Obtener el contenido del item seleccionado
+    item = tree.item(item_id)
+    valores = item.get("values")
+
+    # Validar que existan datos en la fila seleccionada
+    if not valores or len(valores) < 2:
+        messagebox.showwarning("Advertencia", "No se pudo obtener el producto seleccionado.")
         return
 
     # Extraer ID y nombre del producto
