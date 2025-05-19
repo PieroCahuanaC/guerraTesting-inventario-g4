@@ -43,7 +43,7 @@ def crear_frame_reporte(root):
             datos_limpios = []
             for idx, p in enumerate(productos, start=1):
                 datos_limpios.append({
-                    "ID": idx,
+                    "N°.": idx,
                     "Nombre": p["nombre"],
                     "Cantidad": p["cantidad"],
                     "Precio": p["precio"],
@@ -125,7 +125,7 @@ def crear_frame_reporte(root):
             productos = sorted(productos, key=lambda p: p["id_producto"])
 
             datos_limpios = [
-                ["ID", "Nombre", "Cantidad", "Precio (S/.)", "Unidad", "Categoría"]
+                ["N°.", "Nombre", "Cantidad", "Precio (S/.)", "Unidad", "Categoría"]
             ]
             for idx, p in enumerate(productos, start=1):
                 datos_limpios.append([
